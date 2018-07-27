@@ -1,0 +1,5 @@
+# HTTP Server Port
+server:
+  servlet:
+    contextPath: /hexagonal
+  port: 8089
