@@ -22,6 +22,6 @@ public class ConsolaEnMemoria {
     manejadorEnviarBilletesAlteatorio.enviar(10);
     
     // inica la loteria
-    manejadorAdministrarLoteria.iniciarLoteria();
+    manejadorAdministrarLoteria.jugarLoteria();
   }
 }

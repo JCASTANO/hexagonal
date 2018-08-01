@@ -35,7 +35,7 @@ public class ConsolaAdministrador {
 					manejadorAdministrarLoteria.obtenerBilletesEnviados()
 							.forEach((k, v) -> LOGGER.info("Llave: {}, ValorS: {}", k, v));
 				} else if ("2".equals(cmd)) {
-					String numeros = manejadorAdministrarLoteria.iniciarLoteria();
+					String numeros = manejadorAdministrarLoteria.jugarLoteria();
 					LOGGER.info("Los numeros ganadores: {}", numeros);
 					LOGGER.info("Tiempo de resetear la base de datos?");
 				} else if ("3".equals(cmd)) {

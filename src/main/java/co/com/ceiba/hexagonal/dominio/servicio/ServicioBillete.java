@@ -22,8 +22,8 @@ public class ServicioBillete {
 	}
 
 	public Optional<Billete> enviarBillete(Billete billete) {
-		boolean result = bancoElectronico.transferirFondos(ConstantesLoteria.PRECIO_DE_TIQUETE,billete.getJugador().getNumeroCuentaBancaria(), ConstantesLoteria.CUENTA_BANCARIA_DE_SERVICIO);
-		if (!result) {
+		boolean transferenciaExitosa = bancoElectronico.transferirFondos(ConstantesLoteria.PRECIO_DE_TIQUETE,billete.getJugador().getNumeroCuentaBancaria(), ConstantesLoteria.CUENTA_BANCARIA_DE_SERVICIO);
+		if (!transferenciaExitosa) {
 			billete.adicionarEvento(String.format("El billete de %s no pudo jugar debido a que no tiene fondos.", billete.getJugador().getCorreoElectronico()));
 			return Optional.empty();
 		}

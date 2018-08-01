@@ -26,9 +26,9 @@ public class ManejadorAdministrarLoteria {
 		this.servicioAdministracionLoteria.resetearLoteria();
 	}
 	
-	public String iniciarLoteria() {
+	public String jugarLoteria() {
 		NumerosLoteria numeros = NumerosLoteria.crearAleatorio();
-		List<String> eventos = this.servicioAdministracionLoteria.iniciarLoteria(numeros);
+		List<String> eventos = this.servicioAdministracionLoteria.jugarLoteria(numeros);
 		this.eventoLog.printAll(eventos);
 		return numeros.obtenerNumerosComoString();
 	}

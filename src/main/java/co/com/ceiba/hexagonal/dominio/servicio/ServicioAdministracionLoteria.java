@@ -30,7 +30,7 @@ public class ServicioAdministracionLoteria {
 		return repositorioBillete.buscarTodos();
 	}
 
-	public List<String> iniciarLoteria(NumerosLoteria numeros) {
+	public List<String> jugarLoteria(NumerosLoteria numeros) {
 		LinkedList<String> eventos = new LinkedList<>();
 		Map<Integer, Billete> billetes = obtenerBilletesEnviados();
 		for (Integer idBillete : billetes.keySet()) {
@@ -39,16 +39,7 @@ public class ServicioAdministracionLoteria {
 			Billete billete = billetes.get(idBillete);
 			
 			if (resultado.getEstado().equals(EstadoBillete.Estado.GANO)) {
-				boolean fueTransferido = bancoElectronico.transferirFondos(ConstantesLoteria.CANTIDAD_PREMIO,
-						ConstantesLoteria.CUENTA_BANCARIA_DE_SERVICIO,
-						billete.getJugador().getNumeroCuentaBancaria());
-				
-				if (fueTransferido) {
-					billete.adicionarEvento(String.format("El billete de %s ganó! Numero de cuenta bancaria %s fue depositada con %s creditos.",
-							billete.getJugador().getCorreoElectronico(), billete.getJugador().getNumeroCuentaBancaria(), ConstantesLoteria.CANTIDAD_PREMIO));
-				} else {
-					billete.adicionarEvento(String.format("El billete de %s ganó! Desafortunadamente la transferencia de %s falló.",billete.getJugador().getCorreoElectronico(), ConstantesLoteria.CANTIDAD_PREMIO));
-				}
+				realizarPagoDePremio(billete);
 				
 			} else if (resultado.getEstado().equals(EstadoBillete.Estado.NO_GANO)) {
 				billete.adicionarEvento(String.format("El billete de %s fue revisado y no gano esta vez", billete.getJugador().getCorreoElectronico()));
@@ -57,6 +48,20 @@ public class ServicioAdministracionLoteria {
 			billete.clearEventos();
 		}
 		return eventos;
+	}
+
+	private void realizarPagoDePremio(Billete billete) {
+		
+		boolean fueTransferido = bancoElectronico.transferirFondos(ConstantesLoteria.CANTIDAD_PREMIO,
+				ConstantesLoteria.CUENTA_BANCARIA_DE_SERVICIO,
+				billete.getJugador().getNumeroCuentaBancaria());
+		
+		if (fueTransferido) {
+			billete.adicionarEvento(String.format("El billete de %s ganó! Numero de cuenta bancaria %s fue depositada con %s creditos.",
+					billete.getJugador().getCorreoElectronico(), billete.getJugador().getNumeroCuentaBancaria(), ConstantesLoteria.CANTIDAD_PREMIO));
+		} else {
+			billete.adicionarEvento(String.format("El billete de %s ganó! Desafortunadamente la transferencia de %s falló.",billete.getJugador().getCorreoElectronico(), ConstantesLoteria.CANTIDAD_PREMIO));
+		}
 	}
 
 	public void resetearLoteria() {
