@@ -3,15 +3,15 @@ package co.com.ceiba.hexagonal.dominio.servicio;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.inject.Inject;
 
 import co.com.ceiba.hexagonal.dominio.banco.BancoElectronico;
 import co.com.ceiba.hexagonal.dominio.modelo.Billete;
-import co.com.ceiba.hexagonal.dominio.modelo.BilleteValidadorResultado;
 import co.com.ceiba.hexagonal.dominio.modelo.ConstantesLoteria;
 import co.com.ceiba.hexagonal.dominio.modelo.NumerosLoteria;
-import co.com.ceiba.hexagonal.dominio.modelo.UtilidadesLoteria;
+import co.com.ceiba.hexagonal.dominio.modelo.EstadoBillete;
 import co.com.ceiba.hexagonal.dominio.repositorio.RepositorioBillete;
 
 public class ServicioAdministracionLoteria {
@@ -33,12 +33,12 @@ public class ServicioAdministracionLoteria {
 	public List<String> iniciarLoteria(NumerosLoteria numeros) {
 		LinkedList<String> eventos = new LinkedList<>();
 		Map<Integer, Billete> billetes = obtenerBilletesEnviados();
-		for (Integer id : billetes.keySet()) {
+		for (Integer idBillete : billetes.keySet()) {
 			
-			BilleteValidadorResultado resultado = UtilidadesLoteria.validarBilleteGanador(repositorioBillete, id, numeros);
-			Billete billete = billetes.get(id);
+			EstadoBillete resultado = validarBilleteGanador(idBillete, numeros);
+			Billete billete = billetes.get(idBillete);
 			
-			if (resultado.getResult().equals(BilleteValidadorResultado.CheckResult.GANO)) {
+			if (resultado.getEstado().equals(EstadoBillete.Estado.GANO)) {
 				boolean fueTransferido = bancoElectronico.transferirFondos(ConstantesLoteria.CANTIDAD_PREMIO,
 						ConstantesLoteria.CUENTA_BANCARIA_DE_SERVICIO,
 						billete.getJugador().getNumeroCuentaBancaria());
@@ -50,7 +50,7 @@ public class ServicioAdministracionLoteria {
 					billete.adicionarEvento(String.format("El billete de %s ganó! Desafortunadamente la transferencia de %s falló.",billete.getJugador().getCorreoElectronico(), ConstantesLoteria.CANTIDAD_PREMIO));
 				}
 				
-			} else if (resultado.getResult().equals(BilleteValidadorResultado.CheckResult.NO_GANO)) {
+			} else if (resultado.getEstado().equals(EstadoBillete.Estado.NO_GANO)) {
 				billete.adicionarEvento(String.format("El billete de %s fue revisado y no gano esta vez", billete.getJugador().getCorreoElectronico()));
 			}
 			eventos.addAll(billete.getEventos());
@@ -61,5 +61,18 @@ public class ServicioAdministracionLoteria {
 
 	public void resetearLoteria() {
 		repositorioBillete.borrarTodos();
+	}
+	
+	public EstadoBillete validarBilleteGanador(int idBillete,NumerosLoteria numerosGanadores) {
+		Optional<Billete> optional = repositorioBillete.buscarPorId(idBillete);
+		if (optional.isPresent()) {
+			if (optional.get().getNumerosLoteria().equals(numerosGanadores)) {
+				return new EstadoBillete(EstadoBillete.Estado.GANO, 1000);
+			} else {
+				return new EstadoBillete(EstadoBillete.Estado.NO_GANO);
+			}
+		} else {
+			return new EstadoBillete(EstadoBillete.Estado.BILLETE_NO_ENVIADO);
+		}
 	}
 }

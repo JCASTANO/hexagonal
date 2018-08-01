@@ -7,9 +7,12 @@ import co.com.ceiba.hexagonal.dominio.modelo.Billete;
 
 public interface RepositorioBillete {
 
-  Optional<Billete> buscarPorId(int id);
-  Optional<Billete> guardar(Billete billete);
-  Map<Integer, Billete> buscarTodos();
-  void borrarTodos();
-  
+	Optional<Billete> buscarPorId(int id);
+
+	Optional<Billete> guardar(Billete billete);
+
+	Map<Integer, Billete> buscarTodos();
+
+	void borrarTodos();
+
 }

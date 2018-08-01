@@ -11,25 +11,25 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import co.com.ceiba.hexagonal.aplicacion.ManejadorEnviarBilletes;
+import co.com.ceiba.hexagonal.aplicacion.ManejadorAdministrarLoteria;
+import co.com.ceiba.hexagonal.aplicacion.ManejadorEnviarBillete;
 import co.com.ceiba.hexagonal.aplicacion.ManejadorGestionarBancoElectronico;
 import co.com.ceiba.hexagonal.dominio.modelo.Billete;
-import co.com.ceiba.hexagonal.dominio.modelo.BilleteValidadorResultado;
 import co.com.ceiba.hexagonal.dominio.modelo.Jugador;
 import co.com.ceiba.hexagonal.dominio.modelo.NumerosLoteria;
+import co.com.ceiba.hexagonal.dominio.modelo.EstadoBillete;
 import co.com.ceiba.hexagonal.infraestructura.modulo.ModuloMondoDB;
-import co.com.ceiba.hexagonal.infraestructura.mongodb.MongoConnectionPropertiesLoader;
 
 public class ConsolaJugador {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConsolaJugador.class);
 
 	public static void main(String[] args) {
-		MongoConnectionPropertiesLoader.load();
 		Injector injector = Guice.createInjector(new ModuloMondoDB());
 		
-		ManejadorEnviarBilletes manejadorEnviarBilletes = injector.getInstance(ManejadorEnviarBilletes.class);
+		ManejadorEnviarBillete manejadorEnviarBillete = injector.getInstance(ManejadorEnviarBillete.class);
 		ManejadorGestionarBancoElectronico manejadorGestionarBancoElectronico = injector.getInstance(ManejadorGestionarBancoElectronico.class);
+		ManejadorAdministrarLoteria manejadorAdministrarLoteria = injector.getInstance(ManejadorAdministrarLoteria.class);
 		
 		try (final Scanner scanner = new Scanner(System.in)) {
 			boolean exit = false;
@@ -41,9 +41,9 @@ public class ConsolaJugador {
 				} else if ("2".equals(cmd)) {
 					adicionarFondosCuentaLoteria(manejadorGestionarBancoElectronico, scanner);
 				} else if ("3".equals(cmd)) {
-					enviarBillete(manejadorEnviarBilletes,scanner);
+					enviarBillete(manejadorEnviarBillete,scanner);
 				} else if ("4".equals(cmd)) {
-					validarBillete(manejadorEnviarBilletes, scanner);
+					validarBillete(manejadorAdministrarLoteria, scanner);
 				} else if ("5".equals(cmd)) {
 					exit = true;
 				} else {
@@ -53,22 +53,21 @@ public class ConsolaJugador {
 		}
 	}
 
-	private static void validarBillete(ManejadorEnviarBilletes manejadorEnviarBilletes, Scanner scanner) {
+	private static void validarBillete(ManejadorAdministrarLoteria manejadorAdministrarLoteria, Scanner scanner) {
 		LOGGER.info("Cuál es el ID del billete de lotería?");
-		String id = readString(scanner);
+		String idBillete = readString(scanner);
 		LOGGER.info("Dar los 4 números ganadores separados por coma");
-		String numbers = readString(scanner);
+		String numerosApostados = readString(scanner);
 		try {
-			String[] parts = numbers.split(",");
-			Set<Integer> winningNumbers = new HashSet<>();
+			String[] parts = numerosApostados.split(",");
+			Set<Integer> numerosGanadores = new HashSet<>();
 			for (int i = 0; i < 4; i++) {
-				winningNumbers.add(Integer.parseInt(parts[i]));
+				numerosGanadores.add(Integer.parseInt(parts[i]));
 			}
-			BilleteValidadorResultado result = manejadorEnviarBilletes.validarSiElBilleteGano(Integer.valueOf(id),
-					NumerosLoteria.crear(winningNumbers));
-			if (result.getResult().equals(BilleteValidadorResultado.CheckResult.GANO)) {
+			EstadoBillete estadoBillete = manejadorAdministrarLoteria.validarBilleteGanador(Integer.valueOf(idBillete),NumerosLoteria.crear(numerosGanadores));
+			if (estadoBillete.getEstado().equals(EstadoBillete.Estado.GANO)) {
 				LOGGER.info("¡Felicidades! ¡El billete de lotería ha ganado!");
-			} else if (result.getResult().equals(BilleteValidadorResultado.CheckResult.NO_GANO)) {
+			} else if (estadoBillete.getEstado().equals(EstadoBillete.Estado.NO_GANO)) {
 				LOGGER.info("Lamentablemente, el billete de lotería no ganó.");
 			} else {
 				LOGGER.info("Tal billete de lotería no ha sido enviado.");
@@ -78,7 +77,7 @@ public class ConsolaJugador {
 		}
 	}
 
-	private static void enviarBillete(ManejadorEnviarBilletes manejadorEnviarBilletes, Scanner scanner) {
+	private static void enviarBillete(ManejadorEnviarBillete manejadorEnviarBillete, Scanner scanner) {
 		LOGGER.info("Cual es tu correo electronico?");
 		String correoElectronico = readString(scanner);
 		LOGGER.info("Cual es tu numero de cuenta bancaria?");
@@ -96,7 +95,7 @@ public class ConsolaJugador {
 			}
 			NumerosLoteria numerosLoteria = NumerosLoteria.crear(chosen);
 			Billete billete = new Billete(jugador, numerosLoteria);
-			Optional<Billete> billeteGuardado = manejadorEnviarBilletes.enviarBillete(billete);
+			Optional<Billete> billeteGuardado = manejadorEnviarBillete.ejecutar(billete);
 			if (billeteGuardado.isPresent()) {
 				LOGGER.info("Billete de lotería con ID: {}", billeteGuardado.get().getId());
 			} else {

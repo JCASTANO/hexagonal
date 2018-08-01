@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import co.com.ceiba.hexagonal.aplicacion.ManejadorAdministradorConsola;
+import co.com.ceiba.hexagonal.aplicacion.ManejadorAdministrarLoteria;
 import co.com.ceiba.hexagonal.aplicacion.ManejadorEnviarBilletesAlteatorio;
 import co.com.ceiba.hexagonal.infraestructura.modulo.ModuloMondoDB;
 import co.com.ceiba.hexagonal.infraestructura.mongodb.MongoConnectionPropertiesLoader;
@@ -22,7 +22,7 @@ public class ConsolaAdministrador {
 		MongoConnectionPropertiesLoader.load();
 		Injector injector = Guice.createInjector(new ModuloMondoDB());
 		
-		ManejadorAdministradorConsola manejadorAdministradorConsola = injector.getInstance(ManejadorAdministradorConsola.class);
+		ManejadorAdministrarLoteria manejadorAdministrarLoteria = injector.getInstance(ManejadorAdministrarLoteria.class);
 		ManejadorEnviarBilletesAlteatorio manejadorEnviarBilletesAlteatorio = injector.getInstance(ManejadorEnviarBilletesAlteatorio.class);
 		manejadorEnviarBilletesAlteatorio.enviar(20);
 		
@@ -32,14 +32,14 @@ public class ConsolaAdministrador {
 				printMainMenu();
 				String cmd = readString(scanner);
 				if ("1".equals(cmd)) {
-					manejadorAdministradorConsola.obtenerBilletesEnviados()
+					manejadorAdministrarLoteria.obtenerBilletesEnviados()
 							.forEach((k, v) -> LOGGER.info("Llave: {}, ValorS: {}", k, v));
 				} else if ("2".equals(cmd)) {
-					String numeros = manejadorAdministradorConsola.iniciarLoteria();
+					String numeros = manejadorAdministrarLoteria.iniciarLoteria();
 					LOGGER.info("Los numeros ganadores: {}", numeros);
 					LOGGER.info("Tiempo de resetear la base de datos?");
 				} else if ("3".equals(cmd)) {
-					manejadorAdministradorConsola.resetearLoteria();
+					manejadorAdministrarLoteria.resetearLoteria();
 					LOGGER.info("La base de datos fue reseteada.");
 				} else if ("4".equals(cmd)) {
 					exit = true;

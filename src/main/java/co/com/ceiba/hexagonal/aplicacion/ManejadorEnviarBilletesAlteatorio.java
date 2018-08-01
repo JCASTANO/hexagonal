@@ -13,7 +13,7 @@ import co.com.ceiba.hexagonal.dominio.modelo.Billete;
 import co.com.ceiba.hexagonal.dominio.modelo.ConstantesLoteria;
 import co.com.ceiba.hexagonal.dominio.modelo.Jugador;
 import co.com.ceiba.hexagonal.dominio.modelo.NumerosLoteria;
-import co.com.ceiba.hexagonal.dominio.servicio.ServicioLoteria;
+import co.com.ceiba.hexagonal.dominio.servicio.ServicioBillete;
 import co.com.ceiba.hexagonal.infraestructura.banco.BancoElectronicoEnMemoria;
 
 public class ManejadorEnviarBilletesAlteatorio {
@@ -70,12 +70,12 @@ public class ManejadorEnviarBilletesAlteatorio {
 		}
 	}
 	
-	private final ServicioLoteria servicioLoteria;
+	private final ServicioBillete servicioBillete;
 	private final EventoLog eventoLog;
 	
 	@Inject
-	public ManejadorEnviarBilletesAlteatorio(ServicioLoteria servicioLoteria,EventoLog eventoLog) {
-		this.servicioLoteria = servicioLoteria;
+	public ManejadorEnviarBilletesAlteatorio(ServicioBillete servicioBillete,EventoLog eventoLog) {
+		this.servicioBillete = servicioBillete;
 		this.eventoLog = eventoLog;
 	}
 
@@ -83,7 +83,7 @@ public class ManejadorEnviarBilletesAlteatorio {
 		LinkedList<String> eventos = new LinkedList<>();
 		for (int i = 0; i < numeroDeBilletes; i++) {
 			Billete billete = new Billete(obtenerJugadorRandomico(),NumerosLoteria.crearAleatorio());
-			Optional<Billete> billeteEnviado = servicioLoteria.enviarBillete(billete);
+			Optional<Billete> billeteEnviado = servicioBillete.enviarBillete(billete);
 			if(billeteEnviado.isPresent()) {
 				eventos.addAll(billeteEnviado.get().getEventos());
 				billeteEnviado.get().clearEventos();

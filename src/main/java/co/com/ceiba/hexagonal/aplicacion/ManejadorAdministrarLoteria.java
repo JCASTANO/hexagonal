@@ -8,15 +8,16 @@ import javax.inject.Inject;
 import co.com.ceiba.hexagonal.aplicacion.evento.EventoLog;
 import co.com.ceiba.hexagonal.dominio.modelo.Billete;
 import co.com.ceiba.hexagonal.dominio.modelo.NumerosLoteria;
+import co.com.ceiba.hexagonal.dominio.modelo.EstadoBillete;
 import co.com.ceiba.hexagonal.dominio.servicio.ServicioAdministracionLoteria;
 
-public class ManejadorAdministradorConsola {
+public class ManejadorAdministrarLoteria {
 
 	private final ServicioAdministracionLoteria servicioAdministracionLoteria;
 	private final EventoLog eventoLog;
 	
 	@Inject
-	public ManejadorAdministradorConsola(ServicioAdministracionLoteria servicioAdministracionLoteria,EventoLog eventoLog) {
+	public ManejadorAdministrarLoteria(ServicioAdministracionLoteria servicioAdministracionLoteria,EventoLog eventoLog) {
 		this.servicioAdministracionLoteria = servicioAdministracionLoteria;
 		this.eventoLog = eventoLog;
 	}
@@ -34,5 +35,9 @@ public class ManejadorAdministradorConsola {
 	
 	public Map<Integer, Billete> obtenerBilletesEnviados() {
 		return this.servicioAdministracionLoteria.obtenerBilletesEnviados();
+	}
+	
+	public EstadoBillete validarBilleteGanador(int idBillete, NumerosLoteria numerosGanadores) {
+		return this.servicioAdministracionLoteria.validarBilleteGanador(idBillete, numerosGanadores);
 	}
 }

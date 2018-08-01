@@ -20,17 +20,17 @@ public class NumerosLoteria {
 		generarNumerosAleatorios();
 	}
 
-	private NumerosLoteria(Set<Integer> givenNumbers) {
-		numeros = new HashSet<>();
-		numeros.addAll(givenNumbers);
+	private NumerosLoteria(Set<Integer> numeros) {
+		this.numeros = new HashSet<>();
+		this.numeros.addAll(numeros);
 	}
 
 	public static NumerosLoteria crearAleatorio() {
 		return new NumerosLoteria();
 	}
 
-	public static NumerosLoteria crear(Set<Integer> givenNumbers) {
-		return new NumerosLoteria(givenNumbers);
+	public static NumerosLoteria crear(Set<Integer> numeros) {
+		return new NumerosLoteria(numeros);
 	}
 
 	public String obtenerNumerosComoString() {
@@ -59,7 +59,7 @@ public class NumerosLoteria {
 
 	@Override
 	public String toString() {
-		return "LotteryNumbers{" + "numbers=" + numeros + '}';
+		return "numerosloteria{" + "numeros=" + numeros + '}';
 	}
 
 	private static class RandomNumberGenerator {
@@ -70,11 +70,38 @@ public class NumerosLoteria {
 			randomIterator = new Random().ints(min, max + 1).iterator();
 		}
 
-		/**
-		 * @return a random number in the range (min, max)
-		 */
 		public int nextInt() {
 			return randomIterator.nextInt();
 		}
 	}
+	
+	@Override
+	  public int hashCode() {
+	    final int prime = 31;
+	    int result = 1;
+	    result = prime * result + ((numeros == null) ? 0 : numeros.hashCode());
+	    return result;
+	  }
+	
+	@Override
+	  public boolean equals(Object obj) {
+	    if (this == obj) {
+	      return true;
+	    }
+	    if (obj == null) {
+	      return false;
+	    }
+	    if (getClass() != obj.getClass()) {
+	      return false;
+	    }
+	    NumerosLoteria other = (NumerosLoteria) obj;
+	    if (numeros == null) {
+	      if (other.numeros != null) {
+	        return false;
+	      }
+	    } else if (!numeros.equals(other.numeros)) {
+	      return false;
+	    }
+	    return true;
+	  }  
 }
